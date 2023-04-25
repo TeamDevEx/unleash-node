@@ -1,0 +1,30 @@
+{
+    "roles": [
+        {
+            "id": 4,
+            "name": "Owner",
+            "type": "project",
+            "description": "Users with this role have full control over the project, and can add and manage other users within the project context, manage feature toggles within the project, and control advanced project features like archiving and deleting the project."
+        },
+        {
+            "id": 5,
+            "name": "Member",
+            "type": "project",
+            "description": "Users with this role within a project are allowed to view, create and update feature toggles, but have limited permissions in regards to managing the projects user access and can not archive or delete the project."
+        }
+    ],
+    "users": [
+        {
+            "isAPI": false,
+            "accountType": "User",
+            "id": 23,
+            "name": "Royston Tong",
+            "email": "royston.tong@telus.com",
+            "imageUrl": "https://gravatar.com/avatar/60751b4f32b6af51cce46e04f86ec2d6?size=42&default=retro",
+            "seenAt": "2023-01-19T18:41:15.319Z",
+            "addedAt": "2023-01-19T19:03:29.234Z",
+            "roleId": 4
+        }
+    ],
+    "groups": []
+}
