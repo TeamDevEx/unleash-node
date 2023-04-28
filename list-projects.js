@@ -23,7 +23,7 @@ getArrayProjects = async () => {
       listProject.forEach(async (element) => {
         await bigquery
           .dataset(`dreamlogic`)
-          .table(`list-projects`)
+          .table(`project_member`)
           .insert([element]);
       });
     })

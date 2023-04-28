@@ -2,6 +2,7 @@ const axios = require('axios');
 const { BigQuery } = require('@google-cloud/bigquery');
 const bigquery = new BigQuery();
 require('dotenv').config();
+const moment = require('moment-timezone');
 
 getProject = async () => {
   let config = {
@@ -17,7 +18,7 @@ getProject = async () => {
   const arrayOfProjectName = [];
   const [rows] = await bigquery
     .dataset(`dreamlogic`)
-    .table(`get_projects`)
+    .table(`projects`)
     .getRows();
   for (const i of rows) {
     arrayOfProjectName.push(i.name);
@@ -28,10 +29,13 @@ getProject = async () => {
       response.data.projects.forEach(async (e) => {
         if (arrayOfProjectName.includes(e.name)) {
           const datasetId = 'dreamlogic';
-          const tableId = 'get_projects';
+          const tableId = 'projects';
 
-          const query = `UPDATE ${datasetId}.${tableId}
-          SET id = '${e.id}',
+          const update = `UPDATE ${datasetId}.${tableId}
+          SET ingestion_time = '${moment
+            .utc()
+            .format('YYYY-MM-DD HH:mm:ss.SSSSSS')}',
+              id = '${e.id}',
               description = '${e.description}',
               health = ${e.health},
               featureCount = ${e.featureCount},
@@ -42,7 +46,7 @@ getProject = async () => {
           WHERE name = '${e.name}'`;
 
           const [job] = await bigquery.createQueryJob({
-            query: query,
+            query: update,
           });
 
           await job.getMetadata();
@@ -50,6 +54,7 @@ getProject = async () => {
         } else {
           const payload = [
             {
+              ingestion_time: moment.utc().format('YYYY-MM-DD HH:mm:ss.SSSSSS'),
               name: e.name,
               id: e.id,
               description: e.description,
@@ -63,7 +68,7 @@ getProject = async () => {
           ];
           await bigquery
             .dataset(`dreamlogic`)
-            .table(`get_projects`)
+            .table(`projects`)
             .insert(payload);
         }
       });

@@ -1,5 +1,6 @@
 const axios = require('axios');
 require('dotenv').config();
+const moment = require('moment-timezone');
 
 const getProjectUserMore = async (projects) => {
   const matchProjectFromProjectUsers = [];
@@ -20,6 +21,7 @@ const getProjectUserMore = async (projects) => {
         if (response.data.users.length != 0) {
           for (const e of response.data.users) {
             matchProjectFromProjectUsers.push({
+              ingestion_time: moment.utc().format('YYYY-MM-DD HH:mm:ss.SSSSSS'),
               project: id,
               userType: 'users',
               id: e.id,
@@ -32,6 +34,7 @@ const getProjectUserMore = async (projects) => {
         if (response.data.groups.length != 0) {
           for (const e of response.data.groups[0].users) {
             matchProjectFromProjectUsers.push({
+              ingestion_time: moment.utc().format('YYYY-MM-DD HH:mm:ss.SSSSSS'),
               project: id,
               userType: 'groups',
               id: e.user.id,

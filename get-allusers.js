@@ -2,12 +2,10 @@ const axios = require('axios');
 const { BigQuery } = require('@google-cloud/bigquery');
 const bigquery = new BigQuery();
 require('dotenv').config();
+const moment = require('moment-timezone');
 
 getUsers = async () => {
-  const [rows] = await bigquery
-    .dataset(`dreamlogic`)
-    .table(`get_users_enterprise`)
-    .getRows();
+  const [rows] = await bigquery.dataset(`dreamlogic`).table(`users`).getRows();
   const arrayOfEmail = rows.map((i) => i.email);
   let config = {
     method: 'get',
@@ -24,10 +22,13 @@ getUsers = async () => {
       response.data.users.forEach(async (e) => {
         if (arrayOfEmail.includes(e.email)) {
           const datasetId = `dreamlogic`;
-          const tableId = `get_users_enterprise`;
+          const tableId = `users`;
 
           const query = `UPDATE ${datasetId}.${tableId}
-          SET id = ${e.id},
+          SET ingestion_time = '${moment
+            .utc()
+            .format('YYYY-MM-DD HH:mm:ss.SSSSSS')}'
+              id = ${e.id},
               name = '${e.name}', 
               seenAt = TIMESTAMP('${e.seenAt}'),
               loginAttempts = ${e.loginAttempts},
@@ -42,18 +43,16 @@ getUsers = async () => {
           await job.getMetadata();
         } else {
           const payload = {
-            id: element.id,
-            name: element.name,
-            email: element.email,
-            seenAt: element.seenAt,
-            loginAttempts: element.loginAttempts,
-            createdAt: element.createdAt,
-            rootRole: element.rootRole,
+            ingestion_time: moment.utc().format('YYYY-MM-DD HH:mm:ss.SSSSSS'),
+            id: e.id,
+            name: e.name,
+            email: e.email,
+            seenAt: e.seenAt,
+            loginAttempts: e.loginAttempts,
+            createdAt: e.createdAt,
+            rootRole: e.rootRole,
           };
-          await bigquery
-            .dataset(`dreamlogic`)
-            .table(`get_users_enterprise`)
-            .insert([payload]);
+          await bigquery.dataset(`dreamlogic`).table(`users`).insert([payload]);
         }
       });
     })
